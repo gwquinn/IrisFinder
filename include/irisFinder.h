@@ -9,7 +9,8 @@
 #ifndef IRIS_FINDER_H_
 #define IRIS_FINDER_H_
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/ximgproc.hpp>
 #include "irisBoundary.h"
 
 using cv::Mat;
@@ -35,8 +36,8 @@ class IrisFinder
       // Measures the strength of the given iris boundary.
       float boundaryStrength(const IrisBoundary& boundary) const;
 
-      int MinLedArea            =   10, // min area of an LED specular highlight
-          MaxLedArea            = 1500, // max area of an LED specular highlight
+      int MinLedArea            =   10, // minimum area of an LED specular highlight
+          MaxLedArea            = 1500, // maximum area of an LED specular highlight
           MinLedIntensity       =  235, // minimum pixel intensity to constitute an LED point
           LedDilation           =   17, // amount to dilate the LED mask (connects neighbours)
           LedErosion            =    5, // amount of erosion to apply to LED mask (after dilation)
@@ -50,8 +51,8 @@ class IrisFinder
           MinLimbusRadius       =   86, // minimum pixel radius of the limbus
           MaxLimbusRadius       =  200; // maximum pixel radius of the limbus
 
-      float GradientSigma       = 3.2,  // blur to apply prior to gradient computation
-            MinBoundaryGradient = 4.5,  // minimum gradient to constitute a boundary
+      float GradientSigma       = 3.0,  // blur to apply prior to gradient computation
+            MinBoundaryGradient = 4.0,  // minimum gradient to constitute a boundary
             AngleTolerance      = cos(M_PI / 10); // angle tolerance of gradient at boundary point
 
    protected:

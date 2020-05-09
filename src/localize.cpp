@@ -8,21 +8,16 @@
 */
 #include "irisFinder.h"
 #include <opencv2/ximgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/core.hpp>
-#include <be_io_recordstore.h>
-#include <be_memory_autoarrayutility.h>
 #include <sstream>
 
-namespace BE = BiometricEvaluation;
 using namespace std;
-using namespace BE::Memory::AutoArrayUtility;
-using BE::IO::RecordStore;
 
 int main(int argc, char* argv[])
 {
-   const string keys = "{@r   | <none> | path to record store }"
-                       "{@k   | <none> | key to image         }"
-                       "{help |        | show this message    }";
+   const string keys = "{@i   | <none> | path to image     }"
+                       "{help |        | show this message }";
 
    // Parse arguments.
    cv::CommandLineParser parser(argc, argv, keys);
@@ -39,42 +34,31 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
    }
 
-   // Retrieve command line parameters.
-   const string recStorePath = parser.get<string>("@r"),
-                         key = parser.get<string>("@k");
+   const string imgPath = parser.get<string>("@i");
 
-   std::shared_ptr<RecordStore> recordStore;
+   const cv::Mat img = cv::imread(imgPath);
 
-   // Open the record store.
-   try {
-      recordStore = RecordStore::openRecordStore(recStorePath);
-   }
-   catch (const BE::Error::StrategyError& e) {
-      cerr << "Error: " << e.what() << endl;
-      return EXIT_FAILURE;
-   }
-
-   // Load the image as raw data.
-   BE::Memory::uint8Array data;
-
-   try {
-      data = recordStore->read(key);
-   }
-   catch (const BE::Error::Exception& e) {
-      cerr << "Error: " << e.what() << endl;
-      return EXIT_FAILURE;
-   }
-
-   // Convert raw image data into type Mat.
-   const cv::Mat mat = cv::imdecode(cv::Mat(1, data.size(), CV_8U, cstr(data)),
-                                    cv::IMREAD_UNCHANGED);
-
-   const IrisFinder irisFinder(mat);
+   const IrisFinder irisFinder(img);
 
    IrisBoundary pupil,
                 limbus;
 
    irisFinder.boundaries(pupil, limbus);
+
+   cerr << pupil << " " << limbus << endl;
+
+   // Draw pupil boundary.
+   if (pupil.x != -1)
+      ellipse(img, pupil.center(), pupil.size(), 0, 0, 360, cv::Scalar(0, 0, 255));
+
+   // Draw limbus boundary.
+   if (limbus.x != -1)
+      ellipse(img, limbus.center(), limbus.size(), 0, 0, 360, cv::Scalar(0, 255, 0));
+
+   // Save image to file.
+   const string outPath = imgPath.substr(0, imgPath.find_last_of(".")) + "_out.png";
+
+   cv::imwrite(outPath, img);
 
    return EXIT_SUCCESS;
 }

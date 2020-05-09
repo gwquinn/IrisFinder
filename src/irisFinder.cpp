@@ -7,15 +7,20 @@
 * other characteristic.
 */
 #include "irisFinder.h"
-
-#include <opencv2/ximgproc.hpp>                // for image manipulation
+#include <opencv2/imgcodecs.hpp>
 #include <stdint.h>                            // for uint8_t type
-#include <numeric>                             // for DEBUG
-#include <iostream>                            // for DEBUG
+
+#ifdef NDEBUG
+
+#include <numeric>
+#include <iostream>
 #include <vector>
 
-using std::cout;                               // for DEBUG
-using std::endl;                               // for DEBUG
+using std::cout;
+using std::endl;
+
+#endif
+
 using std::vector;
 using cv::Size2f;
 
@@ -140,9 +145,9 @@ void IrisFinder::boundaries(IrisBoundary& pupil, IrisBoundary& limbus) const
 #ifdef NDEBUG
    cout << pupil << endl << limbus << endl;
 
-   // DEBUG: Save image with iris boundaries overlaid.
-   void debugSave(const Mat& image, const std::string& description, const IrisBoundary& pupil,
-                  const IrisBoundary& limbus)
+   // Save image with iris boundaries overlaid.
+   auto save = [](const Mat& image, const std::string& description,
+                  const IrisBoundary& pupil, const IrisBoundary& limbus)
    {
       // Convert from grayscale to color.
       Mat out;
@@ -166,12 +171,12 @@ void IrisFinder::boundaries(IrisBoundary& pupil, IrisBoundary& limbus) const
       imwrite(description + ".png", out);
    };
 
-   debugSave(image,      "raw",        pupil, limbus);
-   debugSave(mask,       "mask",       pupil, limbus);
-   debugSave(contrast,   "contrast",   pupil, limbus);
-   debugSave(houghMask,  "houghMask",  pupil, limbus);
-   debugSave(houghLines, "houghLines", pupil, limbus);
-   debugSave(hough,      "hough",      pupil, limbus);
+   save(image,      "raw",        pupil, limbus);
+   save(mask,       "mask",       pupil, limbus);
+   save(contrast,   "contrast",   pupil, limbus);
+   save(houghMask,  "houghMask",  pupil, limbus);
+   save(houghLines, "houghLines", pupil, limbus);
+   save(hough,      "hough",      pupil, limbus);
 #endif
 }
 
@@ -250,7 +255,7 @@ void IrisFinder::pupilBoundary(IrisBoundary& pupil) const
                         for (int r = ri - 1; r <= ri + 1; ++r)
                         {
                            // Could apply any neighbourhood weighting function here.
-                           radii[r] += 4 - (abs(x - cx) + abs(y - cy) + abs(r - ri));
+                           radii[r] += 4 - fabs(x - cx) + fabs(y - cy) + abs(r - ri);
 
                            // See if new maximum found.
                            if (radii[r] > maxScore)
