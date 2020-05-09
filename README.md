@@ -5,3 +5,10 @@ One of the first steps in automated biometric iris recognition is iris boundary 
 This code is currently in an alpha state. It requires the [OpenCV library](https://opencv.org).
 
 The algorithm used is unpublished but roughly builds upon the approach proposed by [Jan et. al.](https://www.sciencedirect.com/science/article/pii/S0165168412002630)
+
+To build, type:
+```bash
+make
+
+ls examples/img[1-6].png | xargs -Ivar bin/localize var
+```
