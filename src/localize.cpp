@@ -16,14 +16,14 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-   const string keys = "{@i   | <none> | path to image     }"
-                       "{help |        | show this message }";
+   const string keys = "{@i   | | path to image     }"
+                       "{help | | show this message }";
 
    // Parse arguments.
    cv::CommandLineParser parser(argc, argv, keys);
 
    // Print help message.
-   if (parser.has("help")) {
+   if (parser.has("help") || !parser.has("@i")) {
       parser.printMessage();
       return EXIT_SUCCESS;
    }
@@ -45,20 +45,7 @@ int main(int argc, char* argv[])
 
    irisFinder.boundaries(pupil, limbus);
 
-   cerr << pupil << " " << limbus << endl;
-
-   // Draw pupil boundary.
-   if (pupil.x != -1)
-      ellipse(img, pupil.center(), pupil.size(), 0, 0, 360, cv::Scalar(0, 0, 255));
-
-   // Draw limbus boundary.
-   if (limbus.x != -1)
-      ellipse(img, limbus.center(), limbus.size(), 0, 0, 360, cv::Scalar(0, 255, 0));
-
-   // Save image to file.
-   const string outPath = imgPath.substr(0, imgPath.find_last_of(".")) + "_out.png";
-
-   cv::imwrite(outPath, img);
+   cout << pupil << " " << limbus << endl;
 
    return EXIT_SUCCESS;
 }
