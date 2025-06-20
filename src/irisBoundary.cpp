@@ -42,6 +42,7 @@ void IrisBoundary::points(vector<Point2f>& points) const
          break;
    }
 
+   // Shift and scale boundary points.
    for (auto& p : points)
       p = Point(x + p.x * a + 0.5, y + p.y * b + 0.5);
 };
@@ -67,13 +68,12 @@ bool IrisBoundary::valid() const
    return !(x < 0 || y < 0 || a < 0 || b < 0);
 }
 
-float IrisBoundary::eccentricity() const
+float IrisBoundary::eccentricity() const // -GW function not used?
 {
    const float ratio = a < b ? a / b : b / a;
    return sqrt(1 - pow(ratio, 2));
 }
 
-// DEBUG function.
 std::ostream& operator << (std::ostream& os, const IrisBoundary& b)
 {
    const std::string type = (b.type == IrisBoundary::Pupil) ? "Pupil:" : "Limbus:";
@@ -83,3 +83,4 @@ std::ostream& operator << (std::ostream& os, const IrisBoundary& b)
 
    return os;
 }
+
